@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Azure.Storage.Blobs;
+using Microsoft.Azure.Storage;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -16,6 +18,16 @@ namespace AzureBlobik
         {
             InitializeComponent();
         }
+        string BlobStorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=blobdimon;AccountKey=g63GBBTmOsOM95rqBoJQ6aSXouyZV6E5/FkvtyuEm0r4ay+CMGmIkQOxTDLPEOoa+E8HbXFqUTQP+AStKZZXiA==;EndpointSuffix=core.windows.net";
+        string BlobStorageContainerName = TextBox.(this);
+
+        List<string> strings = new List<string>();
+
+        var backupBlobClient = CloudStorageAccount.Parse(BlobStorageConnectionString).CreateCloudBlobClient();
+        var backupContainer = backupBlobClient.GetContainerReference(BlobStorageContainerName);
+
+        BlobServiceClient blobServiceClient = new BlobServiceClient(BlobStorageConnectionString);
+        BlobContainerClient cont = blobServiceClient.GetBlobContainerClient("fileupload");
 
         private void button1_Click(object sender, EventArgs e)
         {
