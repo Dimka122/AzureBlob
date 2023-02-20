@@ -12,16 +12,7 @@ namespace AzureBlobik
         CloudStorageAccount storageAccount = null;
         CloudBlobContainer cloudBlobContainer = null;
         string BlobStorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=blobdimon;AccountKey=g63GBBTmOsOM95rqBoJQ6aSXouyZV6E5/FkvtyuEm0r4ay+CMGmIkQOxTDLPEOoa+E8HbXFqUTQP+AStKZZXiA==;EndpointSuffix=core.windows.net";
-        //string BlobStorageContainerName = string.Format("blobik"); 
-
-        //List<string> strings = new List<string>();
-
-         //var backupBlobClient = CloudStorageAccount.Parse(BlobStorageConnectionString).CreateCloudBlobClient();
-         //var = backupBlobClient.GetContainerReference(BlobStorageContainerName);
-
-        //BlobServiceClient blobServiceClient = new BlobServiceClient(BlobStorageConnectionString);
-        //BlobContainerClient cont = blobServiceClient.GetBlobContainerClient(blobContainerName);
-        //BlobContainerClient cont = blobServiceClient.GetBlobContainerClient();
+        //DefaultEndpointsProtocol=https;AccountName=dimka777;AccountKey=OOwuRqytL1ap6MPYWGi1isXSRPq7Umv8IjGKHhofKvOav02m+pEaVPyXKhInKY3icyOupLgP9Yq7+AStFllKgA==;EndpointSuffix=core.windows.net
         public Form1()
         {
             InitializeComponent();
