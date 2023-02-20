@@ -1,52 +1,112 @@
-﻿using Azure.Storage.Blobs;
-using Microsoft.Azure.Storage;
+﻿using Microsoft.Azure.Storage;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Azure.Storage.Blob;
+using System.IO;
+using EnvDTE;
 
 namespace AzureBlobik
 {
     public partial class Form1 : Form
     {
+        CloudStorageAccount storageAccount = null;
+        CloudBlobContainer cloudBlobContainer = null;
+        string BlobStorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=blobdimon;AccountKey=g63GBBTmOsOM95rqBoJQ6aSXouyZV6E5/FkvtyuEm0r4ay+CMGmIkQOxTDLPEOoa+E8HbXFqUTQP+AStKZZXiA==;EndpointSuffix=core.windows.net";
+        //string BlobStorageContainerName = string.Format("blobik"); 
+
+        //List<string> strings = new List<string>();
+
+         //var backupBlobClient = CloudStorageAccount.Parse(BlobStorageConnectionString).CreateCloudBlobClient();
+         //var = backupBlobClient.GetContainerReference(BlobStorageContainerName);
+
+        //BlobServiceClient blobServiceClient = new BlobServiceClient(BlobStorageConnectionString);
+        //BlobContainerClient cont = blobServiceClient.GetBlobContainerClient(blobContainerName);
+        //BlobContainerClient cont = blobServiceClient.GetBlobContainerClient();
         public Form1()
         {
             InitializeComponent();
+            this.CreateAccountObjects();
         }
-        string BlobStorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=blobdimon;AccountKey=g63GBBTmOsOM95rqBoJQ6aSXouyZV6E5/FkvtyuEm0r4ay+CMGmIkQOxTDLPEOoa+E8HbXFqUTQP+AStKZZXiA==;EndpointSuffix=core.windows.net";
-        string BlobStorageContainerName = TextBox.(this);
 
-        List<string> strings = new List<string>();
+        public async void CreateAccountObjects()
+        {
+            if (CloudStorageAccount.TryParse(BlobStorageConnectionString, out storageAccount))
+            {
+                CloudBlobClient cloudBlobClient = storageAccount.CreateCloudBlobClient();
 
-        var backupBlobClient = CloudStorageAccount.Parse(BlobStorageConnectionString).CreateCloudBlobClient();
-        var backupContainer = backupBlobClient.GetContainerReference(BlobStorageContainerName);
+                cloudBlobContainer = cloudBlobClient.GetContainerReference("myFiles");
+                if (cloudBlobContainer != null)
+                {
+                    return;
+                }
+                //if the container do not exists create it. 
+                cloudBlobContainer = cloudBlobClient.GetContainerReference("myFiles" + Guid.NewGuid().ToString());
+                await cloudBlobContainer.CreateAsync();
 
-        BlobServiceClient blobServiceClient = new BlobServiceClient(BlobStorageConnectionString);
-        BlobContainerClient cont = blobServiceClient.GetBlobContainerClient("fileupload");
+                BlobContainerPermissions permissions = new BlobContainerPermissions
+                {
+                    PublicAccess = BlobContainerPublicAccessType.Blob
+                };
+                await cloudBlobContainer.SetPermissionsAsync(permissions);
+            }
+        }
 
         private void button1_Click(object sender, EventArgs e)
         {
+            ListItems();
+        }
+        
+        public void ListItems()
+        {
+            listView1.Items.Clear();
 
+            BlobContinuationToken blobContinuationToken = null;
+            do
+            {
+                var results = cloudBlobContainer.ListBlobsSegmented(null, blobContinuationToken);
+
+                blobContinuationToken = results.ContinuationToken;
+                foreach (IListBlobItem item in results.Results)
+                {
+                    listView1.Items.Add(item.ToString());
+                }
+            } while (blobContinuationToken != null);
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-
+            //if (listView1.SelectedIndex!= -1)
+            //{
+            //var fileName =textBox1.SelectedItem.Text;
+            //    var blob = this.cloudBlobContainer.GetBlockBlobReference(Path.GetFileName(fileName));
+            //    var result = blob.DeleteIfExists();
+            //    if (result == false)
+            //    {
+            //        MessageBox.Show("Cannot Find File");
+            //    }
+            //    ListItems();
+            //}
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private async void button3_Click(object sender, EventArgs e)
         {
-
+            OpenFileDialog dlg = new OpenFileDialog();
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                string file = dlg.FileName;
+                CloudBlockBlob cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(Path.GetFileName(file));
+                await cloudBlockBlob.UploadFromFileAsync(file);
+                ListItems();
+            }
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-
+            //BlobContainerClient container = new BlobContainerClient(BlobStorageConnectionString, BlobStorageContainerName);
+            //foreach(BlobItem blobItem in container.GetBlobs())
+            //{
+            //    //FileInfo fileInfo = new FileInfo(blobItem);
+            //}
         }
 
         private void button5_Click(object sender, EventArgs e)
